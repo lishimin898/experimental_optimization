@@ -10,7 +10,7 @@ def neuralnet_visualization_from_archieve(datetime):
     mlv.show_all_default_visualizations_from_archive(controller_filename=controller_filename,
                                                      learner_filename=learner_filename,
                                                      controller_type='neural_net')
-    plt.show(
+    plt.show(）
     
 def visualization_from_controller_and_learner_archive(datetime)：
     rootpath='./M-LOOP_archives'
