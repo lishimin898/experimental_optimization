@@ -12,7 +12,7 @@ def neuralnet_visualization_from_archieve(datetime):
                                                      controller_type='neural_net')
     plt.show(
     
-def visualization_from_controller_and_learner_archive(datetime)
+def visualization_from_controller_and_learner_archive(datetime)：
     rootpath='./M-LOOP_archives'
     filetype='txt'
     #date='2020-09-16_16-23'
