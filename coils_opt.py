@@ -35,40 +35,41 @@ class CustomInterface(mli.Interface):
         return cost_dict
 
 
-def cal_grad(params,l,r,show_plot=True):
-    params=np.round(params,decimals=2)
-    x=np.mat(np.arange(-int(np.ceil(l/2)),int(np.ceil(l/2))+1)/1000).T
-    z=(np.concatenate([-params,params])+0)/1000
-    z_list = z.tolist()
-    z_list.sort()
-    print('z is:',z_list)
-    z=np.mat(z)
-    
-    d=np.square(x-z)
-    r=r/1000
-    u=4*np.pi*1e-7
-    N=1
-    I=1
-    B=u*r**2*N*I/(2*np.power(r**2+d,1.5))
-    res=np.squeeze(np.array(np.sum(B,axis=1)))
-    #r_central=r/2*1000                    # mm
-    r_central=50                           # mm
+def cal_grad(params,l=238,r=75,I=1,gama=7e9,show_plot=True):
+    params=np.concatenate([-params,params])/1000                  # m
+    params=np.expand_dims(params,axis=-1)
+
+    z=np.arange(-int(np.ceil(l/2)),int(np.ceil(l/2))+1)/1000      # m
+    r_central=r/2
     low=int(np.floor(l/2-r_central/2))
     up=int(np.ceil(l/2+r_central/2))
-    #print('low and up are:',low,up)
-    array=res[low:up+1]
-    dy=np.max(array)-np.min(array)
-    #dx=(index_1-index_2)/100
-    grad=dy*7e9
-    rel_err=dy/np.max(array)
-    print('grad, rel_err and B are:',grad,rel_err,np.max(array))
+    z_center=z[low:up+1]
+
+    d=np.square(params-z)
+    d_center=np.square(params-z_center)
+
+    u=4*np.pi*1e-7
+    N=1
+    r /=1000
+    B=u*r**2*N*I/(2*np.power(r**2+d,1.5))
+    B=B.sum(axis=0)
+    B_center=u*r**2*N*I/(2*np.power(r**2+d_center,1.5))
+    B_center=B_center.sum(axis=0)
+
+    Bmax=B_center.max(axis=-1)
+    Bmin=B_center.min(axis=-1)
+    dy=Bmax-Bmin
+    rel_err=dy/Bmax
+    grad=dy*gama
+    print('grad, rel_err and B are:',grad,rel_err,Bmax)
     if show_plot:
         plt.figure(figsize=(16,9))
         plt.title('B-Z',fontsize=24)
         plt.xlabel('Z',fontsize=20)
         plt.ylabel('B',fontsize=20)
-        plt.plot(x,res,c='darkviolet')
-
+        plt.plot(z,B,c='darkviolet')
+        plt.show()
+    
     return 10*np.log10(rel_err)
 
 def main():
